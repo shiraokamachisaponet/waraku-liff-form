@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <title>子ども食堂申込フォーム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
   <style>
     body {
       font-family: sans-serif;
@@ -12,10 +14,12 @@
       padding: 40px 20px;
       line-height: 1.8;
     }
+
     .box {
       max-width: 420px;
       margin: auto;
     }
+
     .error {
       color: red;
       word-break: break-all;
@@ -24,50 +28,74 @@
 </head>
 
 <body>
-  <div class="box">
-    <p id="message">申込フォームを開いています...</p>
-  </div>
 
-  <script>
-    const LIFF_ID = "2010652891-bM5HtlvK";
+<div class="box">
+  <p id="message">申込フォームを開いています...</p>
+</div>
 
-    const FORM_URL =
-      "https://docs.google.com/forms/d/e/1FAIpQLSefUNon2GdLrbhMRUhucs5DumjpSk0SNhev-AzB89F3BVlMcA/viewform?usp=pp_url&entry.1073774365=USERID";
+<script>
+const LIFF_ID = "2010652891-bM5HtlvK";
 
-    function showError(text) {
-      document.getElementById("message").innerHTML =
-        "<span class='error'>エラー：" + text + "</span><br><br>" +
-        "LINEアプリからもう一度お試しください。";
+const FORM_URL =
+"https://docs.google.com/forms/d/e/1FAIpQLSefUNon2GdLrbhMRUhucs5DumjpSk0SNhev-AzB89F3BVlMcA/viewform?usp=pp_url&entry.1073774365=USERID";
+
+function showError(message) {
+  document.getElementById("message").innerHTML =
+    "<span class='error'>エラー<br><br>" +
+    message +
+    "</span><br><br>LINEアプリからもう一度お試しください。";
+}
+
+async function main() {
+  try {
+
+    // LIFF初期化
+    await liff.init({
+      liffId: LIFF_ID
+    });
+
+    // 未ログインならログイン
+    if (!liff.isLoggedIn()) {
+
+      liff.login({
+        redirectUri: window.location.href
+      });
+
+      return;
     }
 
-    async function main() {
-      try {
-        await liff.init({ liffId: LIFF_ID });
+    // プロフィール取得
+    const profile = await liff.getProfile();
 
-        if (!liff.isLoggedIn()) {
-          liff.login();
-          return;
-        }
+    const userId = profile.userId;
 
-        const profile = await liff.getProfile();
-        const userId = profile.userId;
-
-        if (!userId) {
-          showError("LINE IDを取得できませんでした");
-          return;
-        }
-
-        const url = FORM_URL.replace("USERID", encodeURIComponent(userId));
-
-        window.location.replace(url);
-
-      } catch (error) {
-        showError(error.message);
-      }
+    if (!userId) {
+      showError("LINEユーザーIDを取得できませんでした。");
+      return;
     }
 
-    main();
-  </script>
+    // GoogleフォームURL生成
+    const url =
+      FORM_URL.replace(
+        "USERID",
+        encodeURIComponent(userId)
+      );
+
+    // Googleフォームへ移動
+    window.location.replace(url);
+
+  } catch (e) {
+
+    console.error(e);
+
+    showError(e.message);
+
+  }
+}
+
+main();
+
+</script>
+
 </body>
 </html>
-
