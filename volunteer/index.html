@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ボランティア登録フォーム</title>
+  <title>ボランティア登録</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -30,7 +30,7 @@
 <body>
 
 <div class="box">
-  <p id="message">ボランティア登録フォームを開いています...</p>
+  <p id="message">リンクを開いています...</p>
 </div>
 
 <script>
@@ -49,12 +49,10 @@ function showError(message) {
 async function main() {
   try {
 
-    // LIFF初期化
     await liff.init({
       liffId: LIFF_ID
     });
 
-    // 未ログインならログイン
     if (!liff.isLoggedIn()) {
 
       liff.login({
@@ -64,7 +62,6 @@ async function main() {
       return;
     }
 
-    // プロフィール取得
     const profile = await liff.getProfile();
 
     const userId = profile.userId;
@@ -74,14 +71,12 @@ async function main() {
       return;
     }
 
-    // GoogleフォームURL生成
     const url =
       FORM_URL.replace(
         "USERID",
         encodeURIComponent(userId)
       );
 
-    // Googleフォームへ移動
     window.location.replace(url);
 
   } catch (e) {
