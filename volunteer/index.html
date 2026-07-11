@@ -2,11 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>ボランティア登録</title>
 
@@ -14,12 +10,11 @@
 </head>
 
 <body>
-  <p id="message">
-    ボランティア登録フォームを開いています…
-  </p>
+  <p id="message">ボランティア登録フォームを開いています…</p>
 
   <script>
-    const LIFF_ID = "2010652891-I7TP20UD";
+    // ★ここだけ修正（小文字の l）
+    const LIFF_ID = "2010652891-l7TP20UD";
 
     const GOOGLE_FORM_URL =
       "https://docs.google.com/forms/d/e/1FAIpQLSc-Dc6EZRcp46qgDpE_u190RgSfEplXnCEUe-cMjazgoaNorA/viewform";
@@ -30,31 +25,18 @@
       const messageElement = document.getElementById("message");
 
       try {
-        // LIFFを初期化
         await liff.init({
           liffId: LIFF_ID
         });
 
-        // LINEログインしていない場合
         if (!liff.isLoggedIn()) {
-          messageElement.textContent =
-            "LINEログイン画面を開いています…";
-
           liff.login();
           return;
         }
 
-        // LINEプロフィールを取得
         const profile = await liff.getProfile();
         const lineUserId = profile.userId;
 
-        if (!lineUserId) {
-          throw new Error(
-            "LINEユーザーIDを取得できませんでした。"
-          );
-        }
-
-        // LINEユーザーIDをGoogleフォームへ事前入力
         const formUrl =
           GOOGLE_FORM_URL +
           "?usp=pp_url&" +
@@ -62,29 +44,16 @@
           "=" +
           encodeURIComponent(lineUserId);
 
-        messageElement.textContent =
-          "ボランティア登録フォームへ移動しています…";
-
         window.location.replace(formUrl);
 
       } catch (error) {
-        console.error("LIFFエラー:", error);
+        console.error(error);
 
-        const errorMessage =
-          error && error.message
-            ? error.message
-            : String(error);
-
-        alert(
-          "エラーが発生しました。\n\n" +
-          errorMessage
-        );
+        alert(error.message);
 
         messageElement.textContent =
-          "フォームを開けませんでした。" +
-          "公式LINEからもう一度お試しください。\n" +
-          "エラー：" +
-          errorMessage;
+          "フォームを開けませんでした。公式LINEからもう一度お試しください。\n\n" +
+          error.message;
       }
     }
 
