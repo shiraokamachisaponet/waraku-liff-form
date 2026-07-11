@@ -2,55 +2,99 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <title>ボランティア登録フォーム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ボランティア登録</title>
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+      line-height: 1.8;
+    }
+
+    .box {
+      max-width: 420px;
+      margin: auto;
+    }
+
+    .error {
+      color: red;
+      word-break: break-all;
+    }
+  </style>
 </head>
 
 <body>
 
+<div class="box">
+  <p id="message">ボランティア登録フォームを開いています...</p>
+</div>
+
 <script>
 const LIFF_ID = "2010652891-l7TP20UD";
 
-const GOOGLE_FORM_URL =
-"https://docs.google.com/forms/d/e/1FAIpQLSc-Dc6EZRcp46qgDpE_u190RgSfEplXnCEUe-cMjazgoaNorA/viewform";
+const FORM_URL =
+"https://docs.google.com/forms/d/e/1FAIpQLSc-Dc6EZRcp46qgDpE_u190RgSfEplXnCEUe-cMjazgoaNorA/viewform?usp=pp_url&entry.1497877145=USERID";
 
-const LINE_USER_ENTRY = "entry.1497877145";
+function showError(message) {
+  document.getElementById("message").innerHTML =
+    "<span class='error'>エラー<br><br>" +
+    message +
+    "</span><br><br>LINEアプリからもう一度お試しください。";
+}
 
 async function main() {
   try {
+
+    // LIFF初期化
     await liff.init({
       liffId: LIFF_ID
     });
 
+    // 未ログインならログイン
     if (!liff.isLoggedIn()) {
-      liff.login();
+
+      liff.login({
+        redirectUri: window.location.href
+      });
+
       return;
     }
 
+    // プロフィール取得
     const profile = await liff.getProfile();
-    const lineUserId = profile.userId;
 
+    const userId = profile.userId;
+
+    if (!userId) {
+      showError("LINEユーザーIDを取得できませんでした。");
+      return;
+    }
+
+    // GoogleフォームURL生成
     const url =
-      GOOGLE_FORM_URL +
-      "?usp=pp_url&" +
-      LINE_USER_ENTRY +
-      "=" +
-      encodeURIComponent(lineUserId);
+      FORM_URL.replace(
+        "USERID",
+        encodeURIComponent(userId)
+      );
 
+    // Googleフォームへ移動
     window.location.replace(url);
 
-  } catch (error) {
-    console.error(error);
+  } catch (e) {
 
-    document.body.innerHTML =
-      "<h3>フォームを開けませんでした。</h3>" +
-      "<p>" + error.message + "</p>";
+    console.error(e);
+
+    showError(e.message);
+
   }
 }
 
 main();
+
 </script>
 
 </body>
