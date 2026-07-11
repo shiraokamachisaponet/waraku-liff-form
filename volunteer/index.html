@@ -3,61 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>ボランティア登録</title>
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 
 <body>
-  <p id="message">ボランティア登録フォームを開いています…</p>
 
-  <script>
-    // ★ここだけ修正（小文字の l）
-    const LIFF_ID = "2010652891-l7TP20UD";
+<script>
+const LIFF_ID = "2010652891-l7TP20UD";
 
-    const GOOGLE_FORM_URL =
-      "https://docs.google.com/forms/d/e/1FAIpQLSc-Dc6EZRcp46qgDpE_u190RgSfEplXnCEUe-cMjazgoaNorA/viewform";
+const GOOGLE_FORM_URL =
+"https://docs.google.com/forms/d/e/1FAIpQLSc-Dc6EZRcp46qgDpE_u190RgSfEplXnCEUe-cMjazgoaNorA/viewform";
 
-    const LINE_USER_ENTRY = "entry.1497877145";
+const LINE_USER_ENTRY = "entry.1497877145";
 
-    async function main() {
-      const messageElement = document.getElementById("message");
+async function main() {
+  try {
+    await liff.init({
+      liffId: LIFF_ID
+    });
 
-      try {
-        await liff.init({
-          liffId: LIFF_ID
-        });
-
-        if (!liff.isLoggedIn()) {
-          liff.login();
-          return;
-        }
-
-        const profile = await liff.getProfile();
-        const lineUserId = profile.userId;
-
-        const formUrl =
-          GOOGLE_FORM_URL +
-          "?usp=pp_url&" +
-          LINE_USER_ENTRY +
-          "=" +
-          encodeURIComponent(lineUserId);
-
-        window.location.replace(formUrl);
-
-      } catch (error) {
-        console.error(error);
-
-        alert(error.message);
-
-        messageElement.textContent =
-          "フォームを開けませんでした。公式LINEからもう一度お試しください。\n\n" +
-          error.message;
-      }
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
     }
 
-    main();
-  </script>
+    const profile = await liff.getProfile();
+    const lineUserId = profile.userId;
+
+    const url =
+      GOOGLE_FORM_URL +
+      "?usp=pp_url&" +
+      LINE_USER_ENTRY +
+      "=" +
+      encodeURIComponent(lineUserId);
+
+    window.location.replace(url);
+
+  } catch (error) {
+    console.error(error);
+
+    document.body.innerHTML =
+      "<h3>フォームを開けませんでした。</h3>" +
+      "<p>" + error.message + "</p>";
+  }
+}
+
+main();
+</script>
+
 </body>
 </html>
