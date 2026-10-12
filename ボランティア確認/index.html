@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ボランティア参加確認</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <p>LINE連携を確認しています...</p>
+
+  <script>
+    const LIFF_ID = "ここに新しいLIFF_IDを入力";
+
+    const GOOGLE_FORM_URL =
+      "https://docs.google.com/forms/d/e/1FAIpQLSdh7S0-m7VaRx8Z7cnCp1ApyBkV4oUIkI7yMCzaDJ3wH6_lyg/viewform";
+
+    const LINE_USER_ENTRY = "entry.2022094606";
+
+    async function main() {
+      try {
+        await liff.init({ liffId: LIFF_ID });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+
+        const url = new URL(GOOGLE_FORM_URL);
+        url.searchParams.set("usp", "pp_url");
+        url.searchParams.set(
+          LINE_USER_ENTRY,
+          profile.userId
+        );
+
+        window.location.replace(url.toString());
+
+      } catch (error) {
+        console.error(error);
+        document.body.textContent =
+          "フォームを開けませんでした。もう一度お試しください。";
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>
